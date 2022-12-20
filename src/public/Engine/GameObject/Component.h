@@ -1,15 +1,14 @@
 #pragma once
 #include <iostream>
-#include "Engine/GameObject/GameObject.h"
+#include "Math/Transform.h"
 
 using namespace std;
 
 class Component {
 public:
+	Transform* transform;
 	string name;
-	Component(string name, GameObject* parent);
+	Component(Transform* transform);
 	void PreRender();
 	void Update();
-
-	GameObject* parent;
 };

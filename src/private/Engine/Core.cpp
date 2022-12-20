@@ -69,11 +69,13 @@ void Core::Init() {
 
 	this->con->RSSetViewports(1, &viewport); // Set our viewport as actual viewport
 	this->con->OMSetRenderTargets(1, this->backBuffer.GetAddressOf(), nullptr); // Set out backbuffer as actual backbuffer
+
+	this->sceneMgr = new SceneManager();
 }
 
 void Core::MainLoop() {
 	this->con->ClearRenderTargetView(this->backBuffer.Get(), RGBA{ 0.f, 0.f, 0.f, 1.f }); // Clear our backbuffer
-
+	sceneMgr->Update();
 	this->sc->Present(1, 0); // Present our backbuffer
 }
 

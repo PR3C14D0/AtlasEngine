@@ -1,8 +1,7 @@
 #include "Engine/GameObject/Component.h"
 
-Component::Component(string name, GameObject* parent) {
-	this->name = name;
-	this->parent = parent;
+Component::Component(Transform* transform) {
+	this->transform = transform;
 }
 
 void Component::PreRender() {
@@ -10,5 +9,5 @@ void Component::PreRender() {
 }
 
 void Component::Update() {
-
+	cout << this->transform->location.x << endl;
 }

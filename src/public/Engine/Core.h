@@ -5,6 +5,7 @@
 #include <DirectX/D3D11.h>
 #include <DirectX/D3DX11.h>
 #include "Engine/Error.h"
+#include "Engine/Scene/SceneManager.h"
 
 using namespace Microsoft::WRL;
 
@@ -29,6 +30,8 @@ private:
 	ComPtr<ID3D11Buffer> buff;
 
 	int width, height;
+
+	SceneManager* sceneMgr;
 
 	Error* error;
 public:
