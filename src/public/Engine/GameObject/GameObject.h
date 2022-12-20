@@ -4,13 +4,11 @@
 #include "Math/Transform.h"
 #include "Component.h"
 
-using namespace std;
-
 class GameObject {
 private:
-	vector<Component*> components;
+	std::vector<Component*> components;
 public:
-	string name;
+	std::string name;
 	Transform transform;
 
 	void AddComponent(Component* component);
@@ -18,5 +16,5 @@ public:
 	void PreRender();
 	void Update();
 
-	GameObject(string name);
+	GameObject(std::string name);
 };

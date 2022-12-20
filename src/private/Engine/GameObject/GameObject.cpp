@@ -1,6 +1,6 @@
 #include "Engine/GameObject/GameObject.h"
 
-GameObject::GameObject(string name) {
+GameObject::GameObject(std::string name) {
 	this->transform = Transform{ {1.f, 0.f, 0.f} };
 	this->name = name;
 }

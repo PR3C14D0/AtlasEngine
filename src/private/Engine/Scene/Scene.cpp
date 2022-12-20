@@ -1,6 +1,6 @@
 #include "Engine/Scene/Scene.h"
 
-Scene::Scene(string name) {
+Scene::Scene(std::string name) {
 	this->name = name;
 }
 

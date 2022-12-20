@@ -13,7 +13,7 @@ void Error::SetHWND(HWND& hwnd) {
 	return;
 }
 
-void Error::Throw(string msg) {
+void Error::Throw(std::string msg) {
 	if (this->hwnd == NULL) {
 		MessageBox(NULL, "[ERROR] No HWND set.\nFile: Error.h", "Error", MB_OK | MB_ICONERROR);
 		return;

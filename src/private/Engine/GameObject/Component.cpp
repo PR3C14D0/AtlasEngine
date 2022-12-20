@@ -9,5 +9,9 @@ void Component::PreRender() {
 }
 
 void Component::Update() {
-	cout << this->transform->location.x << endl;
+	std::cout << this->transform->location.x << std::endl;
+}
+
+void Component::LoadModel() {
+
 }

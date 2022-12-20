@@ -1,20 +1,14 @@
 #pragma once
+#include "Engine/Error.h"
 #include <Windows.h>
 #include <wrl.h>
 #include <DirectX/DXGI.h>
 #include <DirectX/D3D11.h>
 #include <DirectX/D3DX11.h>
-#include "Engine/Error.h"
 #include "Engine/Scene/SceneManager.h"
+#include "Engine/Vertex.h"
 
 using namespace Microsoft::WRL;
-
-typedef float RGBA[4];
-
-struct vertex {
-	float x, y, z;
-	RGBA color;
-};
 
 class Core {
 private:
@@ -27,7 +21,6 @@ private:
 
 	ComPtr<ID3D11RenderTargetView> backBuffer;
 
-	ComPtr<ID3D11Buffer> buff;
 
 	int width, height;
 
@@ -38,8 +31,10 @@ public:
 	Core() = default;;
 	static Core* GetInstance();
 
+	ComPtr<ID3D11Buffer> buff;
 	void Init();
 	void MainLoop();
 
 	void SetHWND(HWND& hwnd);
+	void GetDevice(ComPtr<ID3D11Device>* pDev, ComPtr<ID3D11DeviceContext>* pCon);
 };

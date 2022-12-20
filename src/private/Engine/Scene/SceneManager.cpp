@@ -2,17 +2,21 @@
 
 SceneManager::SceneManager() {
 	this->error = Error::GetInstance();
-	this->actualScene = new Scene("asd");
+	this->actualScene = new Scene("SampleScene");
+	GameObject* sampleObj = new GameObject("TestObj");
+	sampleObj->AddComponent(new Mesh(&sampleObj->transform));
+	this->actualScene->objs.push_back(sampleObj);
+	this->actualScene->PreRender();
 }
 
 void SceneManager::AddScene(Scene* scene) {
 	this->scenes[scene->name] = scene;
 }
 
-void SceneManager::LoadScene(string name) {
+void SceneManager::LoadScene(std::string name) {
 	if (this->scenes.count(name) <= 0) {
 		error->Throw("[ERROR] Scene not found.");
-		cout << "[ERROR] Scene not found." << endl;
+		std::cout << "[ERROR] Scene not found." << std::endl;
 		return;
 	}
 	this->actualScene = this->scenes[name];

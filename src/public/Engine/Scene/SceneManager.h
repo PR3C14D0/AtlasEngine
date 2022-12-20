@@ -3,18 +3,17 @@
 #include <map>
 #include "Engine/Error.h"
 #include "Engine/Scene/Scene.h"
-
-using namespace std;
+#include "Engine/GameObject/Components/Mesh.h"
 
 class SceneManager {
 private:
 	Error* error;
-	map<string, Scene*> scenes;
+	std::map<std::string, Scene*> scenes;
 
 	Scene* actualScene;
 public:
 	void AddScene(Scene* scene);
-	void LoadScene(string name);
+	void LoadScene(std::string name);
 
 	void Update();
 

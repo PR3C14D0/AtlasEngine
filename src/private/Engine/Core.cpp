@@ -6,7 +6,7 @@ void Core::Init() {
 	this->error = Error::GetInstance();
 	if (this->hwnd == NULL) {
 		error->Throw("[ERROR] Core has no window setten.\nFile: Core.cpp");
-		cout << "[ERROR] Core has no window setten.\nFile: Core.cpp" << endl;
+		std::cout << "[ERROR] Core has no window setten.\nFile: Core.cpp" << std::endl;
 		exit(0);
 	}
 
@@ -41,7 +41,7 @@ void Core::Init() {
 	/* Verify if D3D11CreateDeviceAndSwapChain method didn't failed */
 	if (FAILED(hr)) {
 		error->Throw("[ERROR] An error occurred while creating device, inmediate context and swap chain\nFile: Core.cpp\nMethod: D3D11CreateDeviceAndSwapChain");
-		cout << "[ERROR] An error occurred while creating device, inmediate context and swap chain\nFile: Core.cpp\nMethod: D3D11CreateDeviceAndSwapChain" << endl;
+		std::cout << "[ERROR] An error occurred while creating device, inmediate context and swap chain\nFile: Core.cpp\nMethod: D3D11CreateDeviceAndSwapChain" << std::endl;
 		DestroyWindow(this->hwnd);
 	}
 
@@ -75,12 +75,18 @@ void Core::Init() {
 
 void Core::MainLoop() {
 	this->con->ClearRenderTargetView(this->backBuffer.Get(), RGBA{ 0.f, 0.f, 0.f, 1.f }); // Clear our backbuffer
-	sceneMgr->Update();
+	this->sceneMgr->Update();
 	this->sc->Present(1, 0); // Present our backbuffer
 }
 
 void Core::SetHWND(HWND& hwnd) {
 	this->hwnd = hwnd;
+}
+
+void Core::GetDevice(ComPtr<ID3D11Device>* pDev, ComPtr<ID3D11DeviceContext>* pCon)
+{
+	*pDev = this->dev;
+	*pCon = this->con;
 }
 
 Core* Core::GetInstance() {

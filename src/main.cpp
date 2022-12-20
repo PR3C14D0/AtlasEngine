@@ -7,7 +7,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	EnableConsole();
 #endif
 
-	cout << "Atlas engine debugger console." << endl;
+	std::cout << "Atlas engine debugger console." << std::endl;
 
 	Window* window = new Window(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
 

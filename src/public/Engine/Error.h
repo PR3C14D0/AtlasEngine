@@ -2,8 +2,6 @@
 #include <iostream>
 #include <Windows.h>
 
-using namespace std;
-
 class Error {
 private:
 	static Error* instance;
@@ -13,5 +11,5 @@ public:
 	Error() = default;
 	static Error* GetInstance();
 
-	void Throw(string msg);
+	void Throw(std::string msg);
 };

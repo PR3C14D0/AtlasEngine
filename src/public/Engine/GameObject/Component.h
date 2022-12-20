@@ -2,13 +2,12 @@
 #include <iostream>
 #include "Math/Transform.h"
 
-using namespace std;
-
 class Component {
 public:
 	Transform* transform;
-	string name;
+	std::string name;
 	Component(Transform* transform);
-	void PreRender();
-	void Update();
+	virtual void PreRender();
+	virtual void Update();
+	virtual void LoadModel();
 };
