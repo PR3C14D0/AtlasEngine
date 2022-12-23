@@ -9,5 +9,5 @@ public:
 	Component(Transform* transform);
 	virtual void PreRender();
 	virtual void Update();
-	virtual void LoadModel();
+	virtual void LoadModel(std::string name);
 };

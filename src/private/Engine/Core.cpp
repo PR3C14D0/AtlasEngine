@@ -57,7 +57,7 @@ void Core::Init() {
 	GetWindowRect(this->hwnd, &rect);
 	this->width = rect.right - rect.left;
 	this->height = rect.bottom - rect.top;
-
+	
 	/* Creation of our viewport */
 	D3D11_VIEWPORT viewport;
 	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
@@ -66,15 +66,44 @@ void Core::Init() {
 	viewport.TopLeftY = 0;
 	viewport.Height = this->height;
 	viewport.Width = this->width;
+	viewport.MinDepth = 0.f;
+	viewport.MaxDepth = 1.f;
+
+	ComPtr<ID3D11Texture2D> depthTex; // Our depth buffer texture;
+
+	/* Our depth buffer texture descriptor */
+	D3D11_TEXTURE2D_DESC depthTexDesc = { };
+	ZeroMemory(&depthTexDesc, sizeof(D3D11_TEXTURE2D_DESC));
+
+	depthTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthTexDesc.ArraySize = 1;
+	depthTexDesc.MipLevels = 1;
+	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthTexDesc.Height = this->height;
+	depthTexDesc.Width = this->width;
+	depthTexDesc.SampleDesc.Count = 4;
+
+	this->dev->CreateTexture2D(&depthTexDesc, nullptr, depthTex.GetAddressOf()); // Creation of our depth buffer texture
+
+	/* Our DSV (Depth stencil view) descriptor */
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = { };
+	ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+
+	dsvDesc.Format = depthTexDesc.Format;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+
+	this->dev->CreateDepthStencilView(depthTex.Get(), &dsvDesc, this->depthBuffer.GetAddressOf()); // Our depth stencil view creation
+	depthTex->Release();
 
 	this->con->RSSetViewports(1, &viewport); // Set our viewport as actual viewport
-	this->con->OMSetRenderTargets(1, this->backBuffer.GetAddressOf(), nullptr); // Set out backbuffer as actual backbuffer
+	this->con->OMSetRenderTargets(1, this->backBuffer.GetAddressOf(), this->depthBuffer.Get()); // Set out backbuffer and depthbuffer as render targets
 
 	this->sceneMgr = new SceneManager();
 }
 
 void Core::MainLoop() {
 	this->con->ClearRenderTargetView(this->backBuffer.Get(), RGBA{ 0.f, 0.f, 0.f, 1.f }); // Clear our backbuffer
+	this->con->ClearDepthStencilView(this->depthBuffer.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0.f); // Clear out DepthBuffer
 	this->sceneMgr->Update();
 	this->sc->Present(1, 0); // Present our backbuffer
 }
@@ -85,8 +114,8 @@ void Core::SetHWND(HWND& hwnd) {
 
 void Core::GetDevice(ComPtr<ID3D11Device>* pDev, ComPtr<ID3D11DeviceContext>* pCon)
 {
-	*pDev = this->dev;
-	*pCon = this->con;
+	this->dev.CopyTo(pDev->GetAddressOf());
+	this->con.CopyTo(pCon->GetAddressOf());
 }
 
 Core* Core::GetInstance() {

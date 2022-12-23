@@ -3,9 +3,15 @@
 #include <DirectX/DXGI.h>
 #include <DirectX/D3D11.h>
 #include <DirectX/D3DX11.h>
+#include <DirectX/xnamath.h>
+#include "Engine/ConstantBuffer.h"
+#include <Assimp/Importer.hpp>
+#include <Assimp/scene.h>
+#include <Assimp/postprocess.h>
 #include "Engine/Vertex.h"
 #include <vector>
 #include <wrl.h>
+#include "Engine/Error.h"
 
 using namespace Microsoft::WRL;
 
@@ -18,13 +24,25 @@ private:
 	ComPtr<ID3D11DeviceContext> con;
 
 	ComPtr<ID3D11Buffer> buff;
+	ComPtr<ID3D11Buffer> CBuff;
+
+	ComPtr<ID3D11ShaderResourceView> modelTex;
+	ComPtr<ID3D11SamplerState> samplerState;
 
 	std::vector<vertex> vertices;
+	ConstantBuffer MVP;
+	void SetupBuffer();
+	void SetupCBuffer();
+
+	void UpdateCBuffer();
+
+	Error* error;
+
+	float rotation;
 public:
-	Mesh(Transform* transform);
+	Mesh(Transform* transform, ConstantBuffer constantBuffer);
 
 	void PreRender() override;
 	void Update() override;
-	void LoadModel() override;
-	void SetupBuffer();
+	void LoadModel(std::string name) override;
 };

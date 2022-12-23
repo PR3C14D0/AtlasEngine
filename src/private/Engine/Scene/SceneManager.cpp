@@ -1,10 +1,22 @@
 #include "Engine/Scene/SceneManager.h"
+#include "Engine/Core.h"
 
 SceneManager::SceneManager() {
 	this->error = Error::GetInstance();
+	this->core = Core::GetInstance();
+
+	/* Sample scene */
 	this->actualScene = new Scene("SampleScene");
+
 	GameObject* sampleObj = new GameObject("TestObj");
-	sampleObj->AddComponent(new Mesh(&sampleObj->transform));
+	ConstantBuffer constantBuffer;
+	constantBuffer.View = XMMatrixTranspose(XMMatrixLookToLH(XMVectorSet(0.f, 0.f, -2.f, 0.f), XMVectorSet(0.f, 0.f, 1.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)));
+	constantBuffer.Projection = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XMConvertToRadians(90.f), (float)this->core->width / (float)this->core->height, .1f, 300.f));
+	
+	Component* sampleComponent = new Mesh(&sampleObj->transform, constantBuffer);
+	sampleComponent->LoadModel("f16.obj");
+	sampleObj->AddComponent(sampleComponent);
+
 	this->actualScene->objs.push_back(sampleObj);
 	this->actualScene->PreRender();
 }

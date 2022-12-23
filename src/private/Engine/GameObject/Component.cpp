@@ -12,6 +12,6 @@ void Component::Update() {
 	std::cout << this->transform->location.x << std::endl;
 }
 
-void Component::LoadModel() {
+void Component::LoadModel(std::string name) {
 
 }

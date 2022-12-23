@@ -11,6 +11,7 @@
 using namespace Microsoft::WRL;
 
 class Core {
+	friend class SceneManager;
 private:
 	static Core* instance;
 	HWND hwnd;
@@ -20,7 +21,7 @@ private:
 	ComPtr<IDXGISwapChain> sc;
 
 	ComPtr<ID3D11RenderTargetView> backBuffer;
-
+	ComPtr<ID3D11DepthStencilView> depthBuffer;
 
 	int width, height;
 
