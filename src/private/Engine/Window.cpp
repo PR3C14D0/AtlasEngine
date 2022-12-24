@@ -1,6 +1,7 @@
 #include "Engine/Window.h"
 
 bool g_quit = false;
+Core* g_core = Core::GetInstance();
 
 Window::Window(HINSTANCE& hInstance, HINSTANCE& hPrevInstance, LPSTR& lpCmdLine, int& nShowCmd) {
 	const char* CLASS_NAME = "AtlasEngine"; // Our window class name
@@ -33,12 +34,11 @@ Window::Window(HINSTANCE& hInstance, HINSTANCE& hPrevInstance, LPSTR& lpCmdLine,
 	ShowWindow(this->hwnd, nShowCmd); // Show our window
 
 	this->error = Error::GetInstance();
-	this->core = Core::GetInstance();
 
 	this->error->SetHWND(this->hwnd);
-	this->core->SetHWND(this->hwnd);
+	g_core->SetHWND(this->hwnd);
 
-	this->core->Init();
+	g_core->Init();
 
 	/* Main message loop */
 	MSG msg = { };
@@ -47,11 +47,16 @@ Window::Window(HINSTANCE& hInstance, HINSTANCE& hPrevInstance, LPSTR& lpCmdLine,
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		this->core->MainLoop();
+		g_core->MainLoop();
 	}
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
+		return 0;
+
 	switch (uMsg) {
 	case WM_CLOSE:
 		if (MessageBox(hwnd, "Are you sure you want to exit from Atlas engine?", "Sure?", MB_OKCANCEL) == IDOK)
@@ -59,6 +64,7 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		return 0;
 	case WM_DESTROY:
 		g_quit = true;
+		g_core->Shutdown();
 		PostQuitMessage(0);
 		return 0;
 	}

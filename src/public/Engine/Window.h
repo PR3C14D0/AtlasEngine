@@ -9,7 +9,6 @@ private:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	Error* error;
-	Core* core;
 public:
 	Window() = default;
 	Window(HINSTANCE& hInstance, HINSTANCE& hPrevInstance, LPSTR& lpCmdLine, int& nShowCmd);

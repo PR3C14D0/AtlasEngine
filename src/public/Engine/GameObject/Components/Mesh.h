@@ -12,6 +12,9 @@
 #include <vector>
 #include <wrl.h>
 #include "Engine/Error.h"
+#include <ImGui/imgui.h>
+#include <ImGui/backends/imgui_impl_win32.h>
+#include <ImGui/backends/imgui_impl_dx11.h>
 
 using namespace Microsoft::WRL;
 

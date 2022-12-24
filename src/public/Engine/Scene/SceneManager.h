@@ -24,4 +24,6 @@ public:
 	void Update();
 
 	SceneManager();
+
+	Scene* GetActualScene();
 };

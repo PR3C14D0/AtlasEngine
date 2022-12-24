@@ -1,5 +1,5 @@
 # Atlas Engine
-![AtlasEngine]("img/AtlasGif.gif")
+![AtlasEngine](img/AtlasGif.gif)
 - Atlas engine source code in C++.
 # Project structure
 - `include` include files

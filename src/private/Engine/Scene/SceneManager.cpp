@@ -35,6 +35,10 @@ void SceneManager::LoadScene(std::string name) {
 	return;
 }
 
+Scene* SceneManager::GetActualScene() {
+	return this->actualScene;
+}
+
 void SceneManager::Update() {
 	this->actualScene->Update();
 }

@@ -4,12 +4,12 @@ Core* Core::instance;
 
 void Core::Init() {
 	this->error = Error::GetInstance();
+	this->vSyncState = VSYNC::ENABLED;
 	if (this->hwnd == NULL) {
 		error->Throw("[ERROR] Core has no window setten.\nFile: Core.cpp");
 		std::cout << "[ERROR] Core has no window setten.\nFile: Core.cpp" << std::endl;
 		exit(0);
 	}
-
 
 	/* Our SwapChain descriptor */
 	DXGI_SWAP_CHAIN_DESC scDesc = { };
@@ -99,23 +99,45 @@ void Core::Init() {
 	this->con->OMSetRenderTargets(1, this->backBuffer.GetAddressOf(), this->depthBuffer.Get()); // Set out backbuffer and depthbuffer as render targets
 
 	this->sceneMgr = new SceneManager();
+	this->editor = Editor::GetInstance();
 }
 
 void Core::MainLoop() {
 	this->con->ClearRenderTargetView(this->backBuffer.Get(), RGBA{ 0.f, 0.f, 0.f, 1.f }); // Clear our backbuffer
 	this->con->ClearDepthStencilView(this->depthBuffer.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0.f); // Clear out DepthBuffer
+	this->editor->Update();
 	this->sceneMgr->Update();
-	this->sc->Present(1, 0); // Present our backbuffer
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	this->sc->Present(this->vSyncState, 0); // Present our backbuffer
 }
 
 void Core::SetHWND(HWND& hwnd) {
 	this->hwnd = hwnd;
 }
 
+void Core::GetHWND(HWND* pHWND) {
+	*pHWND = this->hwnd;
+}
+
 void Core::GetDevice(ComPtr<ID3D11Device>* pDev, ComPtr<ID3D11DeviceContext>* pCon)
 {
 	this->dev.CopyTo(pDev->GetAddressOf());
 	this->con.CopyTo(pCon->GetAddressOf());
+}
+
+void Core::SetVSyncState(VSYNC state) {
+	this->vSyncState = state;
+}
+
+void Core::Shutdown() {
+	this->backBuffer->Release();
+	this->depthBuffer->Release();
+	this->dev->Release();
+	this->con->Release();
+}
+
+SceneManager* Core::GetSceneManager() {
+	return this->sceneMgr;
 }
 
 Core* Core::GetInstance() {
