@@ -1,16 +1,24 @@
 #include "Engine/GameObject/Components/Mesh.h"
 #include "Engine/Core.h"
 
-Mesh::Mesh(Transform* transform, ConstantBuffer constantBuffer) : Component::Component(transform) {
+Mesh::Mesh(Transform* transform) : Component::Component(transform) {
 	this->name = "Mesh";
 	this->core = Core::GetInstance();
 	this->core->GetDevice(&this->dev, &this->con);
-	this->rotation = 0.f;
 
-	this->MVP.Model = XMMatrixTranspose(XMMatrixIdentity());
-	this->MVP.View = constantBuffer.View;
-	this->MVP.Projection = constantBuffer.Projection;
-	this->error = Error::GetInstance();
+	/* Get our debugger singleton */
+	this->dbg = Debugger::GetInstance();
+
+	/* Log position info to the debugger */
+	this->dbg->Log("[DEBUG] Creating a mesh component at: [X] " + std::to_string(this->transform->location.x) + " [Y] " + std::to_string(this->transform->location.y) + " [Z]" + std::to_string(this->transform->location.z));
+
+	/* Get our constant buffer singleton */
+	this->MVP = ConstantBuffer::GetInstance();
+
+	/* Set our Model position at our MVP */
+	this->MVP->Model = XMMatrixTranspose(XMMatrixIdentity() * XMMatrixTranslation(this->transform->location.x, this->transform->location.y, this->transform->location.z));
+
+	this->ModelLoaded = false;
 }
 
 void Mesh::SetupBuffer() {
@@ -66,7 +74,7 @@ void Mesh::SetupCBuffer() {
 	D3D11_BUFFER_DESC buffDesc = { };
 	ZeroMemory(&buffDesc, sizeof(D3D11_BUFFER_DESC));
 
-	buffDesc.ByteWidth = sizeof(this->MVP);
+	buffDesc.ByteWidth = sizeof(*this->MVP);
 	buffDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	buffDesc.Usage = D3D11_USAGE_DYNAMIC;
 	buffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -78,34 +86,41 @@ void Mesh::SetupCBuffer() {
 }
 
 void Mesh::PreRender() {
-	this->SetupCBuffer();
-	this->SetupBuffer();
+	Component::PreRender();
+
+	if (this->ModelLoaded) {
+		this->SetupCBuffer();
+		this->SetupBuffer();
+	}
 }
 
 void Mesh::UpdateCBuffer() {
 	D3D11_MAPPED_SUBRESOURCE ms;
-	this->rotation += .5f;
-	this->MVP.Model = XMMatrixTranspose(XMMatrixIdentity() * XMMatrixRotationY(XMConvertToRadians(this->rotation)));
 	this->con->Map(this->CBuff.Get(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-	memcpy(ms.pData, &this->MVP, sizeof(MVP));
+	memcpy(ms.pData, this->MVP, sizeof(*MVP));
 	this->con->Unmap(this->CBuff.Get(), NULL);
 }
 
 void Mesh::Update() {
-	this->UpdateCBuffer();
+	Component::Update();
 
-	UINT offset = 0;
-	UINT stride = sizeof(vertex);
-	/* We'll print triangles */
-	this->con->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	this->con->IASetVertexBuffers(0, 1, this->buff.GetAddressOf(), &stride, &offset);
+	if (this->ModelLoaded) {
+		this->UpdateCBuffer();
+		UINT offset = 0;
+		UINT stride = sizeof(vertex);
+		/* We'll print triangles */
+		this->con->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		this->con->IASetVertexBuffers(0, 1, this->buff.GetAddressOf(), &stride, &offset);
 
-	/* The magic method. The ~DRAW~ */
-	this->con->Draw(this->vertices.size(), 0);
+		/* The magic method. The ~DRAW~ */
+		this->con->Draw(this->vertices.size(), 0);
+	}
+
 }
 
 void Mesh::LoadModel(std::string name) {
 	/* We'll use assimp for model loading */
+	this->ModelLoaded = true;
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(name, NULL);
@@ -126,7 +141,7 @@ void Mesh::LoadModel(std::string name) {
 			HRESULT hr = D3DX11CreateShaderResourceViewFromFile(this->dev.Get(), texPath.C_Str(), nullptr, nullptr, this->modelTex.GetAddressOf(), nullptr);
 
 			if (FAILED(hr)) {
-				error->Throw("[ERROR] An error occurred while creating shader resource view for a model.\nFile: Mesh.cpp\nMethod: D3DX11CreateShaderResourceViewFromFile");
+				dbg->Throw("[ERROR] An error occurred while creating shader resource view for a model.\nFile: Mesh.cpp\nMethod: D3DX11CreateShaderResourceViewFromFile");
 				std::cout << "[ERROR] An error occurred while creating shader resource view for a model.\nFile: Mesh.cpp\nMethod: D3DX11CreateShaderResourceViewFromFile" << std::endl;
 			}
 
@@ -146,4 +161,12 @@ void Mesh::LoadModel(std::string name) {
 			this->con->PSSetShaderResources(0, 1, this->modelTex.GetAddressOf());
 		}
 	}
+}
+
+void Mesh::Cleanup() {
+	this->ModelLoaded = false;
+	this->buff->Release();
+	this->modelTex->Release();
+	this->samplerState->Release();
+	this->CBuff->Release();
 }

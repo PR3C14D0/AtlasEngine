@@ -10,4 +10,5 @@ public:
 	virtual void PreRender();
 	virtual void Update();
 	virtual void LoadModel(std::string name);
+	virtual void Cleanup();
 };

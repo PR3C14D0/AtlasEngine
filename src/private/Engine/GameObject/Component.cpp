@@ -9,9 +9,13 @@ void Component::PreRender() {
 }
 
 void Component::Update() {
-	std::cout << this->transform->location.x << std::endl;
+	
 }
 
 void Component::LoadModel(std::string name) {
+
+}
+
+void Component::Cleanup() {
 
 }

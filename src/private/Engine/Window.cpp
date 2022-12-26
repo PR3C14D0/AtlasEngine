@@ -33,9 +33,9 @@ Window::Window(HINSTANCE& hInstance, HINSTANCE& hPrevInstance, LPSTR& lpCmdLine,
 
 	ShowWindow(this->hwnd, nShowCmd); // Show our window
 
-	this->error = Error::GetInstance();
+	this->dbg = Debugger::GetInstance();
 
-	this->error->SetHWND(this->hwnd);
+	this->dbg->SetHWND(this->hwnd);
 	g_core->SetHWND(this->hwnd);
 
 	g_core->Init();

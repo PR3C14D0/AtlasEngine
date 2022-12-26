@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+#include <string>
 #include "Engine/GameObject/Component.h"
 #include <DirectX/DXGI.h>
 #include <DirectX/D3D11.h>
@@ -11,7 +13,7 @@
 #include "Engine/Vertex.h"
 #include <vector>
 #include <wrl.h>
-#include "Engine/Error.h"
+#include "Engine/Debugger.h"
 #include <ImGui/imgui.h>
 #include <ImGui/backends/imgui_impl_win32.h>
 #include <ImGui/backends/imgui_impl_dx11.h>
@@ -33,19 +35,21 @@ private:
 	ComPtr<ID3D11SamplerState> samplerState;
 
 	std::vector<vertex> vertices;
-	ConstantBuffer MVP;
+	ConstantBuffer* MVP;
 	void SetupBuffer();
 	void SetupCBuffer();
 
 	void UpdateCBuffer();
 
-	Error* error;
+	Debugger* dbg;
 
-	float rotation;
+	bool ModelLoaded;
 public:
-	Mesh(Transform* transform, ConstantBuffer constantBuffer);
+	Mesh(Transform* transform);
 
 	void PreRender() override;
 	void Update() override;
 	void LoadModel(std::string name) override;
+
+	void Cleanup() override;
 };

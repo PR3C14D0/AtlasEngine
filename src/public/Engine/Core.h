@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Error.h"
+#include "Engine/Debugger.h"
 #include <Windows.h>
 #include <wrl.h>
 #include <DirectX/DXGI.h>
@@ -38,7 +38,7 @@ private:
 
 	VSYNC vSyncState;
 
-	Error* error;
+	Debugger* dbg;
 public:
 	Core() = default;;
 	static Core* GetInstance();

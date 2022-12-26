@@ -2,22 +2,24 @@
 #include "Engine/Core.h"
 
 SceneManager::SceneManager() {
-	this->error = Error::GetInstance();
+	this->dbg = Debugger::GetInstance();
 	this->core = Core::GetInstance();
 
 	/* Sample scene */
 	this->actualScene = new Scene("SampleScene");
 
 	GameObject* sampleObj = new GameObject("TestObj");
-	ConstantBuffer constantBuffer;
-	constantBuffer.View = XMMatrixTranspose(XMMatrixLookToLH(XMVectorSet(0.f, 0.f, -2.f, 0.f), XMVectorSet(0.f, 0.f, 1.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)));
-	constantBuffer.Projection = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XMConvertToRadians(90.f), (float)this->core->width / (float)this->core->height, .1f, 300.f));
+	ConstantBuffer* constantBuffer = ConstantBuffer::GetInstance();
+	constantBuffer->Projection = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XMConvertToRadians(90.f), (float)this->core->width / (float)this->core->height, .1f, 300.f));
 	
-	Component* sampleComponent = new Mesh(&sampleObj->transform, constantBuffer);
+	Camera* camera = new Camera("Camera");
+
+	Component* sampleComponent = new Mesh(&sampleObj->transform);
 	sampleComponent->LoadModel("f16.obj");
 	sampleObj->AddComponent(sampleComponent);
 
-	this->actualScene->objs.push_back(sampleObj);
+	this->actualScene->AddObject(camera);
+	this->actualScene->AddObject(sampleObj);
 	this->actualScene->PreRender();
 }
 
@@ -27,8 +29,7 @@ void SceneManager::AddScene(Scene* scene) {
 
 void SceneManager::LoadScene(std::string name) {
 	if (this->scenes.count(name) <= 0) {
-		error->Throw("[ERROR] Scene not found.");
-		std::cout << "[ERROR] Scene not found." << std::endl;
+		dbg->Throw("[ERROR] Scene not found.");
 		return;
 	}
 	this->actualScene = this->scenes[name];

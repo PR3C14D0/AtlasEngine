@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 # Agregue un origen al ejecutable de este proyecto.
-add_executable (AtlasEngine  "main.cpp" "public/Engine/Core.h" "private/Engine/Core.cpp" "public/Engine/Window.h" "private/Engine/Window.cpp" "public/Engine/Error.h" "private/Engine/Error.cpp" "public/Math/Vector3.h" "private/Math/Vector3.cpp" "private/Math/Transform.cpp" "private/Math/Transform.cpp" "public/Engine/GameObject/GameObject.h" "private/Engine/GameObject/GameObject.cpp" "private/Engine/GameObject/Component.cpp" "private/Engine/GameObject/Component.cpp" "public/Engine/GameObject/Components/Mesh.h" "public/Engine/Scene/Scene.h" "private/Engine/Scene/Scene.cpp" "public/Engine/Scene/SceneManager.h" "private/Engine/Scene/SceneManager.cpp" "private/Engine/GameObject/Components/Mesh.cpp" "public/Engine/Vertex.h" "public/Engine/ConstantBuffer.h"  "private/Editor/Editor.cpp" "public/Editor/Editor.h")
+add_executable (AtlasEngine  "main.cpp" "public/Engine/Core.h" "private/Engine/Core.cpp" "public/Engine/Window.h" "private/Engine/Window.cpp" "public/Engine/Debugger.h" "private/Engine/Debugger.cpp" "public/Math/Vector3.h" "private/Math/Vector3.cpp" "private/Math/Transform.cpp" "private/Math/Transform.cpp" "public/Engine/GameObject/GameObject.h" "private/Engine/GameObject/GameObject.cpp" "private/Engine/GameObject/Component.cpp" "private/Engine/GameObject/Component.cpp" "public/Engine/GameObject/Components/Mesh.h" "public/Engine/Scene/Scene.h" "private/Engine/Scene/Scene.cpp" "public/Engine/Scene/SceneManager.h" "private/Engine/Scene/SceneManager.cpp" "private/Engine/GameObject/Components/Mesh.cpp" "public/Engine/Vertex.h" "public/Engine/ConstantBuffer.h"  "private/Editor/Editor.cpp" "public/Editor/Editor.h" "public/Engine/Camera/Camera.h" "private/Camera/Camera.cpp" "private/Engine/ConstantBuffer.cpp")
 add_compile_definitions(NOMINMAX)
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET AtlasEngine PROPERTY CXX_STANDARD 20)
@@ -26,6 +26,8 @@ add_library("ImGui" STATIC
 
 	"${IMGUI_LIB}/backends/imgui_impl_dx11.cpp"
 	"${IMGUI_LIB}/backends/imgui_impl_win32.cpp"
+
+	"${IMGUI_LIB}/misc/cpp/imgui_stdlib.cpp"
 )
 
 add_custom_command(TARGET AtlasEngine POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/Shader/GameObject.fx ${CMAKE_CURRENT_BINARY_DIR}/GameObject.fx)

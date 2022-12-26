@@ -3,10 +3,9 @@
 Core* Core::instance;
 
 void Core::Init() {
-	this->error = Error::GetInstance();
 	this->vSyncState = VSYNC::ENABLED;
 	if (this->hwnd == NULL) {
-		error->Throw("[ERROR] Core has no window setten.\nFile: Core.cpp");
+		dbg->Throw("[ERROR] Core has no window setten.\nFile: Core.cpp");
 		std::cout << "[ERROR] Core has no window setten.\nFile: Core.cpp" << std::endl;
 		exit(0);
 	}
@@ -40,8 +39,7 @@ void Core::Init() {
 
 	/* Verify if D3D11CreateDeviceAndSwapChain method didn't failed */
 	if (FAILED(hr)) {
-		error->Throw("[ERROR] An error occurred while creating device, inmediate context and swap chain\nFile: Core.cpp\nMethod: D3D11CreateDeviceAndSwapChain");
-		std::cout << "[ERROR] An error occurred while creating device, inmediate context and swap chain\nFile: Core.cpp\nMethod: D3D11CreateDeviceAndSwapChain" << std::endl;
+		dbg->Throw("[ERROR] An error occurred while creating device, inmediate context and swap chain\nFile: Core.cpp\nMethod: D3D11CreateDeviceAndSwapChain");
 		DestroyWindow(this->hwnd);
 	}
 
@@ -100,6 +98,7 @@ void Core::Init() {
 
 	this->sceneMgr = new SceneManager();
 	this->editor = Editor::GetInstance();
+	this->dbg = Debugger::GetInstance();
 }
 
 void Core::MainLoop() {
@@ -134,6 +133,7 @@ void Core::Shutdown() {
 	this->depthBuffer->Release();
 	this->dev->Release();
 	this->con->Release();
+	this->sceneMgr->GetActualScene()->ClearObjects();
 }
 
 SceneManager* Core::GetSceneManager() {
