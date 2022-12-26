@@ -29,7 +29,7 @@ static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 // Forward declarations
 static bool init_wgpu();
 static void main_loop(void* window);
-static void print_glfw_error(int error, const char* description);
+static void print_glfw_error(int dbg, const char* description);
 static void print_wgpu_error(WGPUErrorType error_type, const char* message, void*);
 
 int main(int, char**)
@@ -227,9 +227,9 @@ static void main_loop(void* window)
     wgpuQueueSubmit(queue, 1, &cmd_buffer);
 }
 
-static void print_glfw_error(int error, const char* description)
+static void print_glfw_error(int dbg, const char* description)
 {
-    printf("Glfw Error %d: %s\n", error, description);
+    printf("Glfw Error %d: %s\n", dbg, description);
 }
 
 static void print_wgpu_error(WGPUErrorType error_type, const char* message, void*)
