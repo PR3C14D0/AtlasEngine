@@ -108,6 +108,7 @@ void Mesh::Update() {
 		this->UpdateCBuffer();
 		UINT offset = 0;
 		UINT stride = sizeof(vertex);
+
 		/* We'll print triangles */
 		this->con->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		this->con->IASetVertexBuffers(0, 1, this->buff.GetAddressOf(), &stride, &offset);

@@ -10,5 +10,6 @@ private:
 public:
 	Camera(std::string name);
 
+	void PreRender() override;
 	void Update() override;
 };
