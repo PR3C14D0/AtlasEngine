@@ -7,4 +7,5 @@ struct Vector3 {
 
 	Vector3 operator+(Vector3& v);
 	Vector3 operator-(Vector3& v);
+	Vector3 operator*(float& f);
 };
