@@ -20,7 +20,7 @@
 
 using namespace Microsoft::WRL;
 
-class Core;
+class Core; /*  Forward declaration of our Core class for preventing circular includes */
 
 class Mesh : public Component {
 private:

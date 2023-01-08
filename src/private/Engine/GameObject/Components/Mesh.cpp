@@ -12,8 +12,11 @@ Mesh::Mesh(Transform* transform) : Component::Component(transform) {
 	/* Log position info to the debugger */
 	this->dbg->Log("[DEBUG] Creating a mesh component at: [X] " + std::to_string(this->transform->location.x) + " [Y] " + std::to_string(this->transform->location.y) + " [Z]" + std::to_string(this->transform->location.z));
 
-	/* Get our constant buffer singleton */
-	this->MVP = ConstantBuffer::GetInstance();
+	/* Get our constant buffer singleton and set our MVP */
+	/* TODO: Get View and Projection from actual camera and stop using MVP singleton */
+
+	ConstantBuffer* pMVP = ConstantBuffer::GetInstance();
+	this->MVP = pMVP;
 
 	/* Set our Model position at our MVP */
 	this->MVP->Model = XMMatrixTranspose(XMMatrixIdentity() * XMMatrixTranslation(this->transform->location.x, this->transform->location.y, this->transform->location.z));
@@ -50,9 +53,12 @@ void Mesh::SetupBuffer() {
 	D3D11_INPUT_ELEMENT_DESC iLayoutDesc[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, NULL},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, NULL},
+		{"NORMAL", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, NULL}
 	};
 
-	this->dev->CreateInputLayout(iLayoutDesc, 2, VertexShader->GetBufferPointer(), VertexShader->GetBufferSize(), iLayout.GetAddressOf());
+	int iLayoutLength = sizeof(iLayoutDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+	
+	this->dev->CreateInputLayout(iLayoutDesc, iLayoutLength, VertexShader->GetBufferPointer(), VertexShader->GetBufferSize(), iLayout.GetAddressOf());
 
 	/* Create out shaders */
 	ComPtr<ID3D11VertexShader> vShader;
@@ -113,7 +119,7 @@ void Mesh::Update() {
 		this->con->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		this->con->IASetVertexBuffers(0, 1, this->buff.GetAddressOf(), &stride, &offset);
 
-		/* The magic method. The ~DRAW~ */
+		/* The magic method. The draw method */
 		this->con->Draw(this->vertices.size(), 0);
 	}
 
@@ -125,25 +131,36 @@ void Mesh::LoadModel(std::string name) {
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(name, NULL);
+	
+	if (scene->HasMeshes()) {
+		std::vector<aiMesh*> meshes(scene->mMeshes, scene->mMeshes + scene->mNumMeshes);
+		aiMesh* mesh = meshes[0];
+		aiMaterial* mat = nullptr;
 
-	if (scene->mNumMeshes > 0) {
-		aiMesh* mesh = scene->mMeshes[0];
-		aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
-
-		for (int i = 0; i < mesh->mNumVertices; i++) {
-			aiVector3D pos = mesh->mVertices[i];
-			vertex vert = { pos.x, pos.y, pos.z, {mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y} };
-			this->vertices.push_back(vert);
-
+		if (mesh->HasTextureCoords(0)) {
+			mat = scene->mMaterials[mesh->mMaterialIndex];
 		}
 
-		aiString texPath;
-		if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 0 && mat->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS) {
-			HRESULT hr = D3DX11CreateShaderResourceViewFromFile(this->dev.Get(), texPath.C_Str(), nullptr, nullptr, this->modelTex.GetAddressOf(), nullptr);
+		for (int i = 0; i < mesh->mNumVertices; i++) {
+			aiVector3D aiPos = mesh->mVertices[i];
+			position pos = { aiPos.x, aiPos.y, aiPos.z };
+			tCoord texCoords = { 0.f, 0.f };
 
-			if (FAILED(hr)) {
-				dbg->Throw("[ERROR] An error occurred while creating shader resource view for a model.\nFile: Mesh.cpp\nMethod: D3DX11CreateShaderResourceViewFromFile");
-				std::cout << "[ERROR] An error occurred while creating shader resource view for a model.\nFile: Mesh.cpp\nMethod: D3DX11CreateShaderResourceViewFromFile" << std::endl;
+			if (mesh->HasTextureCoords(0)) {
+				aiVector3D aiTexCoords = mesh->mTextureCoords[0][i];
+				texCoords[0] = aiTexCoords.x;
+				texCoords[1] = aiTexCoords.y;
+			}
+
+			vertex pushedVertex = { { pos[0], pos[1], pos[2] }, { texCoords[0], texCoords[1] } };
+			this->vertices.push_back(pushedVertex);
+		}
+
+		if (mat) {
+			aiString texturePath;
+			if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 0 && mat->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
+				const aiTexture* texture = scene->GetEmbeddedTexture(texturePath.C_Str());
+				D3DX11CreateShaderResourceViewFromMemory(this->dev.Get(), texture->pcData, texture->mWidth, nullptr, nullptr, this->modelTex.GetAddressOf(), nullptr);
 			}
 
 			D3D11_SAMPLER_DESC samplerDesc = { };
@@ -152,12 +169,12 @@ void Mesh::LoadModel(std::string name) {
 			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 			samplerDesc.MinLOD = 0.f;
 			samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-			samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-			samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-				
+
 			this->dev->CreateSamplerState(&samplerDesc, this->samplerState.GetAddressOf());
+
 			this->con->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
 			this->con->PSSetShaderResources(0, 1, this->modelTex.GetAddressOf());
 		}
@@ -166,8 +183,15 @@ void Mesh::LoadModel(std::string name) {
 
 void Mesh::Cleanup() {
 	this->ModelLoaded = false;
-	this->buff->Release();
-	this->modelTex->Release();
-	this->samplerState->Release();
-	this->CBuff->Release();
+	if(this->buff)
+		this->buff->Release();
+
+	if(this->modelTex)
+		this->modelTex->Release();
+
+	if(this->samplerState)
+		this->samplerState->Release();
+
+	if(this->CBuff)
+		this->CBuff->Release();
 }

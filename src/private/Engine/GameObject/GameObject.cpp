@@ -50,4 +50,5 @@ void GameObject::Update() {
 	for (Component* component : this->components) {
 		component->Update();
 	}
+	this->transform.rotate(0.f, 1.f, 0.f);
 }

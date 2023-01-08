@@ -21,5 +21,5 @@ public:
 	virtual void Update();
 	virtual bool HasMesh();
 
-	GameObject(std::string name);
+	explicit GameObject(std::string name);
 };
