@@ -11,6 +11,7 @@
 #include <vector>
 #include <ImGui/misc/cpp/imgui_stdlib.h>
 #include "Engine/Debugger.h"
+#include "Module/Time.h"
 
 using namespace Microsoft::WRL;
 
@@ -44,6 +45,11 @@ private:
 	bool ObjectPropertiesOpen;
 	void ObjectProperties();
 	void Debugger();
+	void Performance();
+
+	float deltaTime;
+
+	Time* time;
 
 	GameObject* workingObject;
 public:

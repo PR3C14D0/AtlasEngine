@@ -30,7 +30,9 @@ Editor::Editor() {
 	this->scene->GetObjects(&this->objects);
 	this->ObjectPropertiesOpen = false;
 	this->workingObject = nullptr;
-	this->dbg->GetMessages(this->dbgMessages);
+
+	this->time = Time::GetInstance();
+	this->deltaTime = time->deltaTime;
 }
 
 Editor* Editor::GetInstance() {
@@ -105,7 +107,16 @@ void Editor::Hierarchy() {
 	ImGui::End();
 }
 
+void Editor::Performance() {
+	ImGui::SetNextWindowPos(ImVec2{ 1020.f, 80.f });
+	ImGui::SetNextWindowSize(ImVec2{ 120.f, 50.f });
+	ImGui::Begin("Performance", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::Text(("FPS: " + std::to_string((int)ceil(1000 * deltaTime))).c_str());
+	ImGui::End();
+}
+
 void Editor::Update() {
+	this->dbg->GetMessages(&this->dbgMessages);
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -114,6 +125,9 @@ void Editor::Update() {
 	this->MenuBar();
 	this->Hierarchy();
 	this->ObjectProperties();
+	this->Performance();
+
+	this->deltaTime = this->time->deltaTime;
 
 	ImGui::Render();
 }
