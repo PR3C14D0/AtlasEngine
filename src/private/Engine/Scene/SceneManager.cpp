@@ -12,14 +12,15 @@ SceneManager::SceneManager() {
 	ConstantBuffer* constantBuffer = ConstantBuffer::GetInstance();
 	constantBuffer->Projection = XMMatrixTranspose(XMMatrixPerspectiveFovLH(XMConvertToRadians(90.f), (float)this->core->width / (float)this->core->height, .1f, 300.f));
 	
-	Camera* camera = new Camera("Camera");
+	EditorCamera* editorCamera = new EditorCamera("Editor camera");
 
 	Component* sampleComponent = new Mesh(&sampleObj->transform);
-	sampleComponent->LoadModel("f16.obj");
+	sampleComponent->LoadModel("f16.fbx");
 	sampleObj->AddComponent(sampleComponent);
 
-	this->actualScene->AddObject(camera);
+	this->actualScene->AddObject(editorCamera);
 	this->actualScene->AddObject(sampleObj);
+	this->actualScene->SetActualCamera("Editor camera");
 	this->actualScene->PreRender();
 }
 
@@ -37,6 +38,9 @@ void SceneManager::LoadScene(std::string name) {
 }
 
 Scene* SceneManager::GetActualScene() {
+	if (!this->actualScene)
+		this->dbg->Throw("[ERROR] No active scenes found");
+
 	return this->actualScene;
 }
 

@@ -13,8 +13,8 @@ void Debugger::SetHWND(HWND& hwnd) {
 	return;
 }
 
-void Debugger::GetMessages(std::vector<std::string>& msgs) {
-	msgs = this->dbgMsgs;
+void Debugger::GetMessages(std::vector<std::string>* msgs) {
+	*msgs = this->dbgMsgs;
 }
 
 void Debugger::Throw(std::string msg) {

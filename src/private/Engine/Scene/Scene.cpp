@@ -21,6 +21,13 @@ void Scene::Update() {
 	}
 }
 
+Camera* Scene::GetActualCamera() {
+	if (!this->actualCamera)
+		this->dbg->Throw("[ERROR] No active camera found");
+
+	return this->actualCamera;
+}
+
 GameObject* Scene::GetObject(std::string name) {
 	GameObject* retObj = nullptr;
 	for (GameObject* obj : this->objs) {
@@ -36,6 +43,18 @@ GameObject* Scene::GetObject(std::string name) {
 	}
 
 	return retObj;
+}
+
+void Scene::SetActualCamera(std::string name) {
+	GameObject* goCamera = this->GetObject(name);
+	Camera* camera = dynamic_cast<Camera*>(goCamera);
+
+	if (camera) {
+		this->dbg->Log("[DEBUG] Camera set.");
+	}
+	else {
+		this->dbg->Throw("[ERROR] That object is not a camera");
+	}
 }
 
 void Scene::ClearObjects() {

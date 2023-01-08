@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Engine/GameObject/GameObject.h"
 #include "Engine/Debugger.h"
+#include "Engine/Camera/Camera.h"
 
 class Scene {
 	friend class SceneManager;
@@ -10,6 +11,8 @@ private:
 	std::vector<GameObject*> objs;
 
 	Debugger* dbg;
+
+	Camera* actualCamera;
 public:
 	Scene() = default;
 	Scene(std::string name);
@@ -18,9 +21,12 @@ public:
 	void Update();
 
 	GameObject* GetObject(std::string name);
+
+	Camera* GetActualCamera();
 	
 	void GetObjects(std::vector<GameObject*>* vector);
 	void AddObject(GameObject* object);
+	void SetActualCamera(std::string name);
 
 	void ClearObjects();
 };

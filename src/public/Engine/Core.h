@@ -14,7 +14,7 @@ using namespace Microsoft::WRL;
 enum VSYNC {
 	DISABLED = 0,
 	ENABLED = 1,
-	TWO_FRAMES = 2
+	MEDIUM = 2
 };
 
 class Core {

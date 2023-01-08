@@ -16,7 +16,7 @@ public:
 	Debugger() = default;
 	static Debugger* GetInstance();
 
-	void GetMessages(std::vector<std::string>& msgs);
+	void GetMessages(std::vector<std::string>* msgs);
 
 	void Throw(std::string msg);
 	void Log(std::string msg);
