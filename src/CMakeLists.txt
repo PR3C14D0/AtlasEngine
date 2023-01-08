@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 # Agregue un origen al ejecutable de este proyecto.
-add_executable (AtlasEngine  "main.cpp" "public/Engine/Core.h" "private/Engine/Core.cpp" "public/Engine/Window.h" "private/Engine/Window.cpp" "public/Engine/Debugger.h" "private/Engine/Debugger.cpp" "public/Math/Vector3.h" "private/Math/Vector3.cpp" "private/Math/Transform.cpp" "private/Math/Transform.cpp" "public/Engine/GameObject/GameObject.h" "private/Engine/GameObject/GameObject.cpp" "private/Engine/GameObject/Component.cpp" "private/Engine/GameObject/Component.cpp" "public/Engine/GameObject/Components/Mesh.h" "public/Engine/Scene/Scene.h" "private/Engine/Scene/Scene.cpp" "public/Engine/Scene/SceneManager.h" "private/Engine/Scene/SceneManager.cpp" "private/Engine/GameObject/Components/Mesh.cpp" "public/Engine/Vertex.h" "public/Engine/ConstantBuffer.h"  "private/Editor/Editor.cpp" "public/Editor/Editor.h" "public/Engine/Camera/Camera.h" "private/Camera/Camera.cpp" "private/Engine/ConstantBuffer.cpp" "public/Engine/Input.h")
+add_executable (AtlasEngine "main.cpp" "public/Engine/Core.h" "private/Engine/Core.cpp" "public/Engine/Window.h" "private/Engine/Window.cpp" "public/Engine/Debugger.h" "private/Engine/Debugger.cpp" "public/Math/Vector3.h" "private/Math/Vector3.cpp" "private/Math/Transform.cpp" "private/Math/Transform.cpp" "public/Engine/GameObject/GameObject.h" "private/Engine/GameObject/GameObject.cpp" "private/Engine/GameObject/Component.cpp" "private/Engine/GameObject/Component.cpp" "public/Engine/GameObject/Components/Mesh.h" "public/Engine/Scene/Scene.h" "private/Engine/Scene/Scene.cpp" "public/Engine/Scene/SceneManager.h" "private/Engine/Scene/SceneManager.cpp" "private/Engine/GameObject/Components/Mesh.cpp" "public/Engine/Vertex.h" "public/Engine/ConstantBuffer.h"  "private/Editor/Editor.cpp" "public/Editor/Editor.h" "public/Engine/Camera/Camera.h" "private/Camera/Camera.cpp" "private/Engine/ConstantBuffer.cpp" "public/Engine/Input.h" "private/Engine/Input.cpp" "public/Module/Time.h" "private/Module/Time.cpp"  "public/Engine/Camera/EditorCamera.h" "private/Camera/EditorCamera.cpp")
 add_compile_definitions(NOMINMAX)
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET AtlasEngine PROPERTY CXX_STANDARD 20)
@@ -17,6 +17,7 @@ set(LIB "${CMAKE_CURRENT_SOURCE_DIR}/../lib")
 set(D3D_LIB "${LIB}/DirectX/D3D11.lib;${LIB}/DirectX/D3DX11.lib;${LIB}/DirectX/DXGI.lib")
 set(ASSIMP_LIB "${LIB}/Assimp/assimp.lib")
 set(IMGUI_LIB "${GLOBAL_INCLUDES}/ImGui")
+file(GLOB FBX_LIB "${LIB}/FBX/*.lib")
 
 add_library("ImGui" STATIC 
 	"${IMGUI_LIB}/imgui.cpp"
@@ -35,6 +36,8 @@ add_custom_command(TARGET AtlasEngine POST_BUILD COMMAND ${CMAKE_COMMAND} -E cop
 target_link_libraries(AtlasEngine "${D3D_LIB}")
 target_link_libraries(AtlasEngine "${ASSIMP_LIB}")
 target_link_libraries(AtlasEngine ImGui)
+target_link_libraries(AtlasEngine "${FBX_LIB}")
 
 include_directories("${PRIVATE_INCLUDES}")
+include_directories("${GLOBAL_INCLUDES}/FBX") # For solving include errors at FBX header files
 include_directories("${GLOBAL_INCLUDES}")
