@@ -2,7 +2,8 @@ struct VertexOutput
 {
     float4 position : SV_Position;
     float2 tCoord : TEXCOORD0;
-    float4 nml : NORMAL0;
+    float3 nml : NORMAL0;
+    float4 vertexPos : POSITION0;
 };
 
 cbuffer ConstantBuffer : register(b0) {
@@ -13,8 +14,8 @@ cbuffer ConstantBuffer : register(b0) {
     float4 AmbientColor;
 }
 
-Texture2D tex : register(t0);
-SamplerState samplerState : register(s0);
+Texture2D tex : register(t[0]);
+SamplerState samplerState : register(s[0]);
 
 VertexOutput VertexMain(float4 position : POSITION, float2 tCoord : TEXCOORD, float4 nml : NORMAL)
 {
@@ -24,14 +25,22 @@ VertexOutput VertexMain(float4 position : POSITION, float2 tCoord : TEXCOORD, fl
     output.position = mul(output.position, Projection);
     output.tCoord = tCoord;
 
-    output.nml = mul(nml, Model);
+    output.vertexPos = mul(position, Model);
+    output.nml = normalize(mul(float3(nml.xyz), (float3x3)Model));
 
     return output;
 }
 
 float4 PixelMain(VertexOutput input) : SV_Target
 {
+    float4 diffuseColor = tex.Sample(samplerState, float2(input.tCoord.x, 1.f - input.tCoord.y));
 
+    float3 lightDirection = normalize(LightPos.xyz - input.vertexPos.xyz);
+    float3 lightDistance = normalize(LightPos.xyz - input.vertexPos.xyz);
 
-    return tex.Sample(samplerState, float2(input.tCoord.x, input.tCoord.y * -1.f)) * AmbientColor;
+    float diffuseIntensity = dot(lightDirection, input.nml);
+    diffuseIntensity = saturate(diffuseIntensity);
+    
+    float4 diffuseFinal = (diffuseColor * diffuseIntensity) + (AmbientColor * diffuseColor);
+    return diffuseFinal;
 }
