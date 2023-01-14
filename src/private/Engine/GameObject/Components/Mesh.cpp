@@ -21,6 +21,8 @@ Mesh::Mesh(Transform* transform) : Component::Component(transform) {
 	/* Set our Model position at our MVP */
 	this->MVP->Model = XMMatrixTranspose(XMMatrixIdentity() * XMMatrixTranslation(this->transform->location.x, this->transform->location.y, this->transform->location.z));
 
+	this->time = Time::GetInstance();
+
 	this->ModelLoaded = false;
 }
 
@@ -42,37 +44,17 @@ void Mesh::SetupBuffer() {
 	memcpy(ms.pData, this->vertices.data(), sizeof(vertex) * this->vertices.size());
 	this->con->Unmap(this->buff.Get(), NULL);
 
-	/* Shader compilation */
-	ID3DBlob* VertexShader, *PixelShader;
-	D3DX11CompileFromFile("GameObject.fx", nullptr, NULL, "VertexMain", "vs_4_0", NULL, NULL, nullptr, &VertexShader, nullptr, nullptr);
-	D3DX11CompileFromFile("GameObject.fx", nullptr, NULL, "PixelMain", "ps_4_0", NULL, NULL, nullptr, &PixelShader, nullptr, nullptr);
-
-	/* Creation of our input layout */
-	ComPtr<ID3D11InputLayout> iLayout;
-
+	/* Creation of our shader */
 	D3D11_INPUT_ELEMENT_DESC iLayoutDesc[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, NULL},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, NULL},
-		{"NORMAL", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, NULL}
+		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, NULL}
 	};
 
-	int iLayoutLength = sizeof(iLayoutDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
+	UINT nNumElements = sizeof(iLayoutDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
 	
-	this->dev->CreateInputLayout(iLayoutDesc, iLayoutLength, VertexShader->GetBufferPointer(), VertexShader->GetBufferSize(), iLayout.GetAddressOf());
-
-	/* Create out shaders */
-	ComPtr<ID3D11VertexShader> vShader;
-	ComPtr<ID3D11PixelShader> pShader;
-
-	this->dev->CreateVertexShader(VertexShader->GetBufferPointer(), VertexShader->GetBufferSize(), nullptr, vShader.GetAddressOf());
-	this->dev->CreatePixelShader(PixelShader->GetBufferPointer(), PixelShader->GetBufferSize(), nullptr, pShader.GetAddressOf());
-
-	/* Use our shaders */
-	this->con->VSSetShader(vShader.Get(), nullptr, NULL);
-	this->con->PSSetShader(pShader.Get(), nullptr, NULL);
-
-	/* Use our input layout */
-	this->con->IASetInputLayout(iLayout.Get());
+	this->shader = new Shader("GameObject.fx", "VertexMain", "PixelMain", iLayoutDesc, nNumElements);
+	this->shader->UseShader();
 }
 
 void Mesh::SetupCBuffer() {
@@ -111,6 +93,8 @@ void Mesh::UpdateCBuffer() {
 void Mesh::Update() {
 	Component::Update();
 
+	this->MVP->Model = XMMatrixTranspose(XMMatrixIdentity() * XMMatrixTranslation(this->transform->location.x, this->transform->location.y, this->transform->location.z));
+
 	if (this->ModelLoaded) {
 		this->UpdateCBuffer();
 		UINT offset = 0;
@@ -146,6 +130,7 @@ void Mesh::LoadModel(std::string name) {
 			aiVector3D aiPos = mesh->mVertices[i];
 			position pos = { aiPos.x, aiPos.y, aiPos.z };
 			tCoord texCoords = { 0.f, 0.f };
+			normals nml = { 0.f, 0.f, 0.f };
 
 			if (mesh->HasTextureCoords(0)) {
 				aiVector3D aiTexCoords = mesh->mTextureCoords[0][i];
@@ -153,7 +138,13 @@ void Mesh::LoadModel(std::string name) {
 				texCoords[1] = aiTexCoords.y;
 			}
 
-			vertex pushedVertex = { { pos[0], pos[1], pos[2] }, { texCoords[0], texCoords[1] } };
+			if (mesh->HasNormals()) {
+				nml[0] = mesh->mNormals[i].x;
+				nml[1] = mesh->mNormals[i].y;
+				nml[2] = mesh->mNormals[i].z;
+			}
+
+			vertex pushedVertex = { { pos[0], pos[1], pos[2] }, { texCoords[0], texCoords[1] }, { nml[0], nml[1], nml[2]}};
 			this->vertices.push_back(pushedVertex);
 		}
 

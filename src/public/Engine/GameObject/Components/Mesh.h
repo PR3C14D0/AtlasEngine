@@ -18,6 +18,8 @@
 #include <ImGui/backends/imgui_impl_win32.h>
 #include <ImGui/backends/imgui_impl_dx11.h>
 #include "Module/Util.h"
+#include "Engine/Shader.h"
+#include "Module/Time.h"
 
 using namespace Microsoft::WRL;
 
@@ -45,6 +47,10 @@ private:
 	Debugger* dbg;
 
 	bool ModelLoaded;
+
+	Shader* shader;
+
+	Time* time;
 public:
 	Mesh(Transform* transform);
 
