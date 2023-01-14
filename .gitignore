@@ -33,4 +33,8 @@
 
 .vs
 out
+<<<<<<< HEAD
 lib
+=======
+/lib/FBX
+>>>>>>> dbe7eac (Updated gitignore)
