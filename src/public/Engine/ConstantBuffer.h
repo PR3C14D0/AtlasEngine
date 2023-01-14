@@ -9,6 +9,8 @@ public:
 	XMMATRIX Model;
 	XMMATRIX View;
 	XMMATRIX Projection;
+	XMFLOAT4 LightPos;
+	XMFLOAT4 AmbientColor;
 
 	ConstantBuffer();
 

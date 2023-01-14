@@ -89,6 +89,7 @@ void Mesh::SetupCBuffer() {
 
 	this->UpdateCBuffer();
 	this->con->VSSetConstantBuffers(0, 1, this->CBuff.GetAddressOf());
+	this->con->PSSetConstantBuffers(0, 1, this->CBuff.GetAddressOf());
 }
 
 void Mesh::PreRender() {
@@ -132,7 +133,7 @@ void Mesh::LoadModel(std::string name) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(name, NULL);
 	
-	if (scene->HasMeshes()) {
+	if (scene->HasMeshes()) { /* Check if our scene has meshes */
 		std::vector<aiMesh*> meshes(scene->mMeshes, scene->mMeshes + scene->mNumMeshes);
 		aiMesh* mesh = meshes[0];
 		aiMaterial* mat = nullptr;

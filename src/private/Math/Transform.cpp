@@ -38,7 +38,7 @@ void Transform::rotate(float x, float y, float z) {
 	this->rotation = this->rotation + added;
 }
 
-Vector3 Transform::forward() {
+Vector3 Transform::forward() { //
 	Vector3 forwardPoint = this->RotatePoint({0.f, 0.f, 1.f});
 	return forwardPoint;
 }

@@ -35,6 +35,7 @@
 out
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 lib
 =======
 /lib/FBX
@@ -42,3 +43,6 @@ lib
 =======
 lib/FBX
 >>>>>>> 94051a8 (Updated gitignore)
+=======
+lib
+>>>>>>> bcd77f9 (Update: gitignore)
