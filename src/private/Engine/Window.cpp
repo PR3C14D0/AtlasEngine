@@ -38,7 +38,7 @@ Window::Window(HINSTANCE& hInstance, HINSTANCE& hPrevInstance, LPSTR& lpCmdLine,
 
 	this->dbg = Debugger::GetInstance();
 	this->time = Time::GetInstance();
-
+	
 	this->dbg->SetHWND(this->hwnd);
 	g_core->SetHWND(this->hwnd);
 
