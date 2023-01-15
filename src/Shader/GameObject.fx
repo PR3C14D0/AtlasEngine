@@ -36,11 +36,13 @@ float4 PixelMain(VertexOutput input) : SV_Target
     float4 diffuseColor = tex.Sample(samplerState, float2(input.tCoord.x, 1.f - input.tCoord.y));
 
     float3 lightDirection = normalize(LightPos.xyz - input.vertexPos.xyz);
-    float3 lightDistance = normalize(LightPos.xyz - input.vertexPos.xyz);
 
     float diffuseIntensity = dot(lightDirection, input.nml);
     diffuseIntensity = saturate(diffuseIntensity);
+
+    float4 ambientColor = AmbientColor;
+    ambientColor += diffuseIntensity;
     
-    float4 diffuseFinal = (diffuseColor * diffuseIntensity) + (AmbientColor * diffuseColor);
+    float4 diffuseFinal = diffuseColor * saturate(ambientColor);
     return diffuseFinal;
 }
