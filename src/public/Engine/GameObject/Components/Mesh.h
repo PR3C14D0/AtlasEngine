@@ -20,6 +20,8 @@
 #include "Module/Util.h"
 #include "Engine/Shader.h"
 #include "Module/Time.h"
+#include <execution>
+#include <map>
 
 using namespace Microsoft::WRL;
 
@@ -31,18 +33,22 @@ private:
 	ComPtr<ID3D11Device> dev;
 	ComPtr<ID3D11DeviceContext> con;
 
-	ComPtr<ID3D11Buffer> buff;
 	ComPtr<ID3D11Buffer> CBuff;
 
-	ComPtr<ID3D11ShaderResourceView> modelTex;
 	ComPtr<ID3D11SamplerState> samplerState;
+	std::map<UINT, ComPtr<ID3D11ShaderResourceView>> textures;
 
-	std::vector<vertex> vertices;
+	std::map<UINT, std::vector<vertex>> vertices;
+	std::map<UINT, ComPtr<ID3D11Buffer>> buffers;
 	ConstantBuffer* MVP;
-	void SetupBuffer();
+	void SetupBuffers();
 	void SetupCBuffer();
 
 	void UpdateCBuffer();
+
+	void UseCBuffer();
+
+	UINT MeshCount;
 
 	Debugger* dbg;
 
